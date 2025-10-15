@@ -79,7 +79,13 @@ class Product
         $stmt->execute([$this->categoryId]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return new Category($data['id'], $data['name'], $data['description'], $data['categoryId']);
+        // Si aucune catégorie trouvée, lever une exception claire
+        if ($data === false) {
+            throw new RuntimeException('Catégorie introuvable (id=' . intval($this->categoryId) . ')');
+        }
+
+        // Le constructeur de Category attend id, name, description
+        return new Category($data['id'], $data['name'], $data['description']);
     }
 
     // Setters

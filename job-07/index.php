@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../job-01/Product.php';
-$pdo = new PDO('mysql:host=localhost;dbname=draft_shop', 'root', '');
+$pdo = new PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $product = new Product();
