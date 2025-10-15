@@ -127,4 +127,26 @@ class Product
     {
         $this->updatedAt = $updatedAt;
     }
+    public function findOneById(int $id, PDO $pdo): bool|Product
+    {
+        $stmt = $pdo->prepare("SELECT * FROM product WHERE id = ?");
+        $stmt->execute([$id]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            return false;
+        }
+
+        $this->setId($data['id']);
+        $this->setName($data['name']);
+        $this->setPhotos(json_decode($data['photos']));
+        $this->setPrice($data['price']);
+        $this->setDescription($data['description']);
+        $this->setQuantity($data['quantity']);
+        $this->setCreatedAt(new DateTime($data['createdAt']));
+        $this->setUpdatedAt(new DateTime($data['updatedAt']));
+        $this->setCategoryId($data['category_id']);
+
+        return $this;
+    }
 }
