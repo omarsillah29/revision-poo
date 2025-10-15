@@ -6,9 +6,7 @@ class Category
     private string $description;
     private DateTime $createdAt;
     private DateTime $updatedAt;
-    private int $categoryId;
-
-    public function __construct(int $id, string $name, string $description, int $categoryId)
+    public function __construct(int $id, string $name, string $description,)
     {
         $this->id = $id;
         $this->name = $name;
@@ -38,6 +36,33 @@ class Category
     {
         return $this->updatedAt;
     }
+
+    public function getProducts(PDO $pdo): array
+    {
+        $stmt = $pdo->prepare("SELECT * FROM product WHERE category_id = ?");
+        $stmt->execute([$this->id]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $products = [];
+
+        foreach ($rows as $data) {
+            $product = new Product();
+            $product->setId($data['id']);
+            $product->setName($data['name']);
+            $product->setPhotos(json_decode($data['photos']));
+            $product->setPrice($data['price']);
+            $product->setDescription($data['description']);
+            $product->setQuantity($data['quantity']);
+            $product->setCreatedAt(new DateTime($data['createdAt']));
+            $product->setUpdatedAt(new DateTime($data['updatedAt']));
+            $product->setCategoryId($data['category_id']);
+
+            $products[] = $product;
+        }
+
+        return $products;
+    }
+
     // Setters
     public function setId(int $id): void
     {

@@ -1,5 +1,7 @@
 <?php
 require_once '../job-01/Product.php';
+require_once '../job-02/Category.php';
+
 $pdo = new PDO('mysql:host=localhost;dbname=draft_shop', 'root', '');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
