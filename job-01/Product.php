@@ -72,6 +72,16 @@ class Product
     {
         return $this->updatedAt;
     }
+
+    public function getCategory(PDO $pdo): Category
+    {
+        $stmt = $pdo->prepare("SELECT * FROM category WHERE id = ?");
+        $stmt->execute([$this->categoryId]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return new Category($data['id'], $data['name'], $data['description'], $data['categoryId']);
+    }
+
     // Setters
     public function setId(int $id): void
     {
