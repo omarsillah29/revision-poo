@@ -155,4 +155,29 @@ class Product
 
         return $this;
     }
+
+    public static function findAll(PDO $pdo): array
+    {
+        $stmt = $pdo->query("SELECT * FROM product");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $products = [];
+
+        foreach ($rows as $data) {
+            $product = new Product();
+            $product->setId($data['id']);
+            $product->setName($data['name']);
+            $product->setPhotos(json_decode($data['photos']));
+            $product->setPrice($data['price']);
+            $product->setDescription($data['description']);
+            $product->setQuantity($data['quantity']);
+            $product->setCreatedAt(new DateTime($data['createdAt']));
+            $product->setUpdatedAt(new DateTime($data['updatedAt']));
+            $product->setCategoryId($data['category_id']);
+
+            $products[] = $product;
+        }
+
+        return $products;
+    }
 }
