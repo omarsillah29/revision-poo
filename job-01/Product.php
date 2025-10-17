@@ -210,4 +210,45 @@ class Product
             return false;
         }
     }
+    public function update(): Product|false
+    {
+        if ($this->id === null) {
+            return false; // Impossible de mettre à jour sans ID
+        }
+
+        try {
+            $pdo = new PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->prepare("
+            UPDATE product SET
+                name = :name,
+                photos = :photos,
+                price = :price,
+                description = :description,
+                quantity = :quantity,
+                createdAt = :createdAt,
+                updatedAt = :updatedAt,
+                category_id = :category_id
+            WHERE id = :id
+        ");
+
+            $stmt->execute([
+                ':name' => $this->name,
+                ':photos' => json_encode($this->photos),
+                ':price' => $this->price,
+                ':description' => $this->description,
+                ':quantity' => $this->quantity,
+                ':createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
+                ':updatedAt' => $this->updatedAt->format('Y-m-d H:i:s'),
+                ':category_id' => $this->categoryId,
+                ':id' => $this->id
+            ]);
+
+            return $this;
+        } catch (PDOException $e) {
+            echo "Erreur : " . $e->getMessage();
+            return false;
+        }
+    }
 }
