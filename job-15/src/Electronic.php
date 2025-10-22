@@ -93,10 +93,46 @@ class Electronic extends AbstractProduct implements StockableInterface
     }
     public static function findOneById(int $id): self|false
     {
-        return false;
+        try {
+            $pdo = new \PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->prepare("SELECT p.id, p.name, p.quantity, e.brand
+                FROM product p
+                LEFT JOIN electronic e ON p.id = e.product_id
+                WHERE p.id = :id");
+            $stmt->execute([':id' => $id]);
+            $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$data) {
+                return false;
+            }
+
+            return new self((int)$data['id'], $data['name'], (int)$data['quantity'], $data['brand'] ?? '');
+        } catch (\PDOException $e) {
+            return false;
+        }
     }
     public static function findAll(): array
     {
-        return [];
+        try {
+            $pdo = new \PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->query("SELECT p.id, p.name, p.quantity, e.brand
+                FROM product p
+                JOIN electronic e ON p.id = e.product_id");
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $items = [];
+
+            foreach ($rows as $data) {
+                $items[] = new self((int)$data['id'], $data['name'], (int)$data['quantity'], $data['brand'] ?? '');
+            }
+
+            return $items;
+        } catch (\PDOException $e) {
+            return [];
+        }
     }
 }

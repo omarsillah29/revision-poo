@@ -97,10 +97,47 @@ class Clothing extends AbstractProduct implements StockableInterface
     }
     public static function findOneById(int $id): self|false
     {
-        return false;
+        try {
+            $pdo = new \PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->prepare("SELECT p.id, p.name, p.quantity, c.size, c.color
+                FROM product p
+                LEFT JOIN clothing c ON p.id = c.product_id
+                WHERE p.id = :id");
+            $stmt->execute([':id' => $id]);
+            $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$data) {
+                return false;
+            }
+
+            return new self((int)$data['id'], $data['name'], (int)$data['quantity'], $data['size'] ?? '', $data['color'] ?? '');
+        } catch (\PDOException $e) {
+            // silent on failure, return false to follow signature
+            return false;
+        }
     }
     public static function findAll(): array
     {
-        return [];
+        try {
+            $pdo = new \PDO('mysql:host=localhost;dbname=draft-shop', 'root', '');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            $stmt = $pdo->query("SELECT p.id, p.name, p.quantity, c.size, c.color
+                FROM product p
+                JOIN clothing c ON p.id = c.product_id");
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $items = [];
+
+            foreach ($rows as $data) {
+                $items[] = new self((int)$data['id'], $data['name'], (int)$data['quantity'], $data['size'] ?? '', $data['color'] ?? '');
+            }
+
+            return $items;
+        } catch (\PDOException $e) {
+            return [];
+        }
     }
 }
